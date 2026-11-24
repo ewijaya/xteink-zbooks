@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 270" width="960" height="270" role="img" aria-label="Z-Books Architecture Diagram">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#57606a"/>
+    </marker>
+    <marker id="arrow-accent" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#0969da"/>
+    </marker>
+  </defs>
+
+  <style>
+    .bg { fill: #ffffff; }
+    .group { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; rx: 12; }
+    .box { fill: #ffffff; stroke: #8c959f; stroke-width: 1.5; rx: 8; }
+    .box-accent { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.75; rx: 8; }
+    .box-sd { fill: #dafbe1; stroke: #1a7f37; stroke-width: 1.5; rx: 8; }
+    .group-title { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #57606a; letter-spacing: 0.3px; }
+    .title { font: 600 13.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; text-anchor: middle; }
+    .sub { font: 400 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #57606a; text-anchor: middle; }
+    .edge-label { font: 500 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; text-anchor: middle; }
+    .edge-pill { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; rx: 6; }
+    .line { fill: none; stroke: #57606a; stroke-width: 1.6; }
+    .line-accent { fill: none; stroke: #0969da; stroke-width: 1.8; }
+  </style>
+
+  <rect class="bg" width="960" height="270" rx="12"/>
+
+  <!-- Left Host Group -->
+  <rect class="group" x="18" y="18" width="464" height="234"/>
+  <text class="group-title" x="36" y="42">YOUR MAC / LINUX / AWS SERVER</text>
+
+  <!-- Node: Terminal / AI Agent -->
+  <rect class="box" x="36" y="64" width="168" height="72"/>
+  <text class="title" x="120" y="90">Terminal or AI Agent</text>
+  <text class="sub" x="120" y="109">inspect_epub.py</text>
+  <text class="sub" x="120" y="125">+ zbooks CLI</text>
+
+  <!-- Node: Queue & Cache -->
+  <rect class="box" x="234" y="72" width="112" height="56"/>
+  <text class="title" x="290" y="97">Queue &amp;</text>
+  <text class="title" x="290" y="114">Cache</text>
+
+  <!-- Node: Z-Books Bridge -->
+  <rect class="box-accent" x="150" y="162" width="196" height="72"/>
+  <text class="title" x="248" y="188">Z-Books Bridge</text>
+  <text class="sub" x="248" y="207">Python stdlib HTTP</text>
+  <text class="sub" x="248" y="223">+ epub_fix.py (TOC)</text>
+
+  <!-- Node: heartleo/zlib -->
+  <rect class="box" x="364" y="64" width="102" height="72"/>
+  <text class="title" x="415" y="90">zlib CLI</text>
+  <text class="sub" x="415" y="109">heartleo/zlib</text>
+  <text class="sub" x="415" y="125">(optional)</text>
+
+  <!-- Internal edges inside Host -->
+  <line class="line" x1="204" y1="100" x2="232" y2="100" marker-end="url(#arrow)"/>
+  <line class="line" x1="290" y1="128" x2="290" y2="160" marker-end="url(#arrow)"/>
+  <path class="line" d="M 346 184 L 415 184 L 415 138" marker-end="url(#arrow)"/>
+
+  <!-- Right Device Group -->
+  <rect class="group" x="626" y="18" width="316" height="234"/>
+  <text class="group-title" x="644" y="42">XTEINK X4 PRO</text>
+
+  <!-- Node: Z-Books InkApp -->
+  <rect class="box-accent" x="646" y="64" width="276" height="72"/>
+  <text class="title" x="784" y="90">Z-Books InkApp (Lua / API 2.18)</text>
+  <text class="sub" x="784" y="109">Queue · Search · Files · Settings</text>
+  <text class="sub" x="784" y="125">Direct save (≤ 7.5 MB) &amp; chunked stream</text>
+
+  <!-- Node: microSD AppFiles -->
+  <rect class="box-sd" x="646" y="162" width="276" height="72"/>
+  <text class="title" x="784" y="188">microSD / AppFiles / zbooks /</text>
+  <text class="sub" x="784" y="207">Open in All files → Stock Reader</text>
+  <text class="sub" x="784" y="223">Appears natively on Bookshelf</text>
+
+  <!-- Edge: InkApp -> microSD -->
+  <line class="line" x1="784" y1="136" x2="784" y2="160" marker-end="url(#arrow)"/>
+
+  <!-- Network Bridge <-> X4 Pro -->
+  <path class="line-accent" d="M 346 204 L 554 204 L 554 100 L 644 100" marker-start="url(#arrow-accent)" marker-end="url(#arrow-accent)"/>
+  <rect class="edge-pill" x="492" y="127" width="124" height="44"/>
+  <text class="edge-label" x="554" y="145">HTTPS Tunnel</text>
+  <text class="edge-label" x="554" y="162">or Home Wi-Fi</text>
+</svg>

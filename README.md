@@ -21,16 +21,13 @@ An **XTEINK X4 Pro InkApp** (`app_id = "zbooks"`, API 2.18) paired with a zero-d
 
 ## How It Works
 
-```mermaid
-flowchart LR
-  subgraph Host["Your Mac / Linux / AWS Server"]
-    Agent["Terminal or AI Agent\n(inspect_epub.py + zbooks CLI)"] --> Queue["Queue & Cache"]
-    Bridge["Z-Books Bridge\n(Python stdlib + epub_fix.py)"] --> ZLib["heartleo/zlib CLI\n(optional)"]
-    Queue --> Bridge
-  end
-  Bridge <-->|"HTTPS (Cloudflare Tunnel)\nor Home Wi-Fi LAN"| X4["XTEINK X4 Pro\nZ-Books InkApp (API 2.18)"]
-  X4 --> SD["microSD/AppFiles/zbooks/\n(Open via All files -> Bookshelf)"]
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/architecture-light.svg" />
+    <img alt="Z-Books Architecture Diagram" src="docs/assets/architecture-light.svg" width="100%" />
+  </picture>
+</p>
 
 *Why a companion bridge?* Stock InkApps run in a ~1 MB Lua sandbox with no automatic HTTP redirects and a 128 KB response limit (unless streaming directly to a file). Keeping search, auth cookies, mirror handling, caching, and EPUB TOC cleaning on the bridge makes the X4 Pro app fast, tiny (`57 KB`), and easy to maintain without rebuilding `.xtapp` packages.
 
