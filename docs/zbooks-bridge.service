@@ -1,0 +1,13 @@
+[Unit]
+Description=Z-Books Companion Bridge for XTEINK X4 Pro
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ubuntu/projects/xteink-zbooks
+ExecStart=/usr/bin/python3 -m server.cli serve
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
