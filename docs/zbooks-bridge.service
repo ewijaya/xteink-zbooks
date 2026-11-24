@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/ubuntu/projects/xteink-zbooks
+WorkingDirectory=%h/projects/xteink-zbooks
 ExecStart=/usr/bin/python3 -m server.cli serve
 Restart=on-failure
 RestartSec=5

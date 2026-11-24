@@ -1,4 +1,4 @@
-LUA ?= $(shell if [ -x /home/ubuntu/projects/xteink-timer-deck/build/toolchain/lua-5.5.0/src/lua ]; then echo /home/ubuntu/projects/xteink-timer-deck/build/toolchain/lua-5.5.0/src/lua; else command -v lua; fi)
+LUA ?= lua
 
 .PHONY: icon lint test-server test-lua test package
 

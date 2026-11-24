@@ -1,49 +1,70 @@
-# Z-Books Setup Guide (Cloudflare Tunnel + XTEINK X4 Pro)
+# Z-Books Setup Guide
 
-## 1. Authenticate `zlib` on this Server
+## Prerequisites
 
-Never paste your Z-Library password into a chat prompt. Log in directly in your SSH terminal:
+- **Device:** XTEINK X4 Pro running stock **XTOS Licorice** with **InkApp API 2.18** (verified on `XT Licorice 26112001`).
+- **Bridge host:** Any Linux/macOS machine with **Python 3.10+** (zero pip dependencies required for running the bridge).
+- **Optional (`zlib` search):** [`heartleo/zlib`](https://github.com/heartleo/zlib) CLI installed on the bridge host if you want Z-Library search & downloads. *(You can also use Z-Books purely as a wireless local EPUB queue with `./zbooks queue add-file` without installing `zlib`.)*
+
+---
+
+## 1. Authenticate `zlib` (Optional — for Z-Library Search)
+
+Never paste your Z-Library password into a chat prompt. Log in directly in your terminal:
 
 ```bash
 zlib login
 zlib profile
 ```
 
-Verify that `zlib profile` prints your account email and remaining daily download quota.
+Verify that `zlib profile` prints your account details and remaining daily quota.
 
-## 2. Initialize the Z-Books Bridge
+---
+
+## 2. Initialize the Companion Bridge
 
 ```bash
-cd /home/ubuntu/projects/xteink-zbooks
-./zbooks init --url https://books.yourdomain.com
+git clone https://github.com/ewijaya/xteink-zbooks.git
+cd xteink-zbooks
+./zbooks init --url https://YOUR-BRIDGE-URL
 ```
 
 This creates `~/.config/zbooks-bridge/config.json` (mode `0600`) with a random Bearer token and prints the `config.json` snippet for your X4 Pro.
 
-## 3. Expose `127.0.0.1:8742` via Cloudflare Tunnel (HTTPS)
+---
 
-The XTEINK X4 Pro validates HTTPS against built-in public root CAs (`ctx.net:request`), so Cloudflare Tunnel gives you valid HTTPS with zero firewall ports open.
+## 3. Choose How Your X4 Pro Connects
 
-### Option A: Quick test tunnel (no custom domain needed)
+### Option A: Local Home Wi-Fi / macOS LAN (Simplest — No Tunnel Needed)
+If your Mac or home Linux box is on the same Wi-Fi as your X4 Pro:
+
 ```bash
-cloudflared tunnel --url http://127.0.0.1:8742
+# Find your Mac/PC local IP (e.g. 192.168.1.25)
+./zbooks init --url http://192.168.1.25:8742
+./zbooks serve --host 0.0.0.0 --port 8742
 ```
-*(Note: Quick tunnel URLs change when restarted; great for first verification.)*
 
-### Option B: Permanent custom domain (recommended)
-In Cloudflare Zero Trust → **Networks → Tunnels**, add a **Public Hostname**:
-- **Hostname:** `books.yourdomain.com`
-- **Service:** `http://127.0.0.1:8742`
+### Option B: Cloudflare Tunnel (Access From Any Wi-Fi Over HTTPS)
+The X4 Pro validates HTTPS against built-in public root CAs (`ctx.net:request`), so Cloudflare Tunnel gives valid HTTPS with zero firewall ports open.
 
-> **Important:** Do **not** place a Cloudflare Access login screen in front of this hostname, because the X4 Pro InkApp cannot complete browser OAuth/OTP challenges. Authentication is enforced by the bridge's `Authorization: Bearer <token>` header instead.
+- **Quick Tunnel (zero Cloudflare account needed):**
+  ```bash
+  cloudflared tunnel --url http://127.0.0.1:8742
+  ```
+  *(Note: Quick tunnel URLs change when restarted; update the URL anytime in Z-Books **Set → Server URL**.)*
+- **Permanent Custom Domain:**
+  In Cloudflare Zero Trust → **Networks → Tunnels**, add a **Public Hostname** (e.g. `books.yourdomain.com`) pointing to `http://127.0.0.1:8742`.
+  > **Important:** Do **not** place a Cloudflare Access browser login screen in front of this hostname, since the X4 Pro InkApp cannot complete browser OAuth challenges. Authentication is enforced by the bridge's `Authorization: Bearer <token>` header.
 
-## 4. Run the Bridge as a Background Service (`systemd`)
+---
 
-Copy the provided user unit file and enable it:
+## 4. Run in the Background on Linux (`systemd --user`)
+
+Edit `WorkingDirectory` in [docs/zbooks-bridge.service](zbooks-bridge.service) if your clone is not in `~/projects/xteink-zbooks`, then enable it:
 
 ```bash
 mkdir -p ~/.config/systemd/user
-cp /home/ubuntu/projects/xteink-zbooks/docs/zbooks-bridge.service ~/.config/systemd/user/
+cp docs/zbooks-bridge.service ~/.config/systemd/user/
 systemctl --user daemon-reload
 systemctl --user enable --now zbooks-bridge.service
 systemctl --user status zbooks-bridge.service
@@ -54,30 +75,38 @@ Verify locally:
 curl -s http://127.0.0.1:8742/health
 ```
 
-## 5. Install on XTEINK X4 Pro (`XT Licorice 26112001` / API 2.18)
+---
 
-1. Connect the X4 Pro in **USB Mode**.
-2. Copy `dist/zbooks-0.1.0.xtapp` to the root of the microSD card.
-3. Create folder `microSD/AppFiles/zbooks/` and save `config.json` inside it:
+## 5. Install Z-Books on Your XTEINK X4 Pro
+
+1. Download `zbooks-0.1.1.xtapp` from the [latest GitHub release](https://github.com/ewijaya/xteink-zbooks/releases/latest) (or use `dist/zbooks-0.1.1.xtapp`).
+2. Put your X4 Pro in **USB Mode**.
+3. Copy `zbooks-0.1.1.xtapp` to the root of the microSD card.
+4. Create `microSD/AppFiles/zbooks/` and place `config.json` inside it:
    ```bash
-   ./zbooks device-config --url https://books.yourdomain.com -o /tmp/config.json
+   ./zbooks device-config -o /tmp/config.json
    ```
-   *(Or configure URL and Token directly on-device via **Set → Server URL / API Token**.)*
-4. Eject safely. On the X4 Pro:
-   - Open **All files → `zbooks-0.1.0.xtapp`** → **Install**.
-   - Open **Ink App → Z-Books**.
-   - Tap **Set → Test Connection** to confirm `Bridge OK` and `Z-Library: Logged in`.
+   *(Or enter URL and Token on-device later via **Set → Server URL / API Token**.)*
+5. Eject safely. On the X4 Pro:
+   - Open **All files → `zbooks-0.1.1.xtapp`** → **Install**.
+   - *(If **Ink App** is hidden, open **Settings → About** and tap **Model** ten times.)*
+   - Open **Ink App → Z-Books** and tap **Set → Test Connection**.
+
+---
 
 ## 6. Reading Downloaded Books
 
-1. Tap **Get** on any queued book (or search & tap **Download to X4 Pro**).
+1. Tap **`Get`** on a queued book (or search & tap **Download to X4 Pro**).
 2. Exit Z-Books (`Exit` or long-press Home).
-3. Open **All files → `AppFiles` → `zbooks`** and tap the `.epub`.
+3. Open **All files → `AppFiles` → `zbooks`** and tap your `.epub`.
 4. After opening it once, it automatically appears on your **Bookshelf**.
+
+---
 
 ## Troubleshooting
 
 - **`HTTPS failed (clock unset)`:** Connect the X4 Pro to Wi-Fi and wait a few seconds for system time to sync, then retry.
 - **`Unauthorized (401)`:** Ensure the `token` in `microSD/AppFiles/zbooks/config.json` matches `~/.config/zbooks-bridge/config.json`.
-- **`Z-Library: Not logged in`:** Run `zlib login` (or `zlib doctor` if your mirror domain changed) on the server.
+- **`Z-Library: Not logged in`:** Run `zlib login` (or `zlib doctor` if your mirror domain changed) on the bridge host.
 - **Large books (> 8 MB):** The bridge automatically switches to chunked mode (`mode: "chunked"`), showing a live progress bar while appending chunks to `AppFiles/zbooks/`.
+- **Stale TOC after re-downloading the same filename:** Delete the old file from Z-Books' **Files** tab (`Del`) before tapping **Get** so the X4 Pro stock reader clears its cached chapter list.

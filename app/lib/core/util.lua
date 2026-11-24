@@ -1,7 +1,7 @@
 -- Pure utility helpers (no ctx dependencies)
 local M = {}
 
-M.VERSION = "0.1.0"
+M.VERSION = "0.1.1"
 M.CONFIG_FILE = "config.json"
 M.PAGE_SIZE = 6
 M.CHUNK_BYTES = 98304

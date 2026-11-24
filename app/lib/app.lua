@@ -306,8 +306,14 @@ function M:test_connection(ctx)
         "Queue: " .. tostring(data.queue_count or 0) .. " book(s)",
         "Z-Library: " .. (data.zlib_logged_in and "Logged in" or ("Not logged in" .. (data.zlib_error and data.zlib_error ~= "" and (" (" .. data.zlib_error .. ")") or ""))),
       }
-      if type(data.quota) == "table" and data.quota.downloads_left ~= nil then
-        lines[#lines + 1] = "Daily quota left: " .. tostring(data.quota.downloads_left)
+      if type(data.quota) == "table" then
+        local left = data.quota.daily_remaining
+        if left == nil then
+          left = data.quota.downloads_left
+        end
+        if left ~= nil then
+          lines[#lines + 1] = "Daily quota left: " .. tostring(left)
+        end
       end
       self.test_result = table.concat(lines, "\n")
     end

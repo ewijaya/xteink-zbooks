@@ -180,6 +180,7 @@ def inspect_epub(path: Path) -> dict[str, Any]:
         has_nav = False
         has_ncx = False
         toc_entries = 0
+        nav_nested_tags = 0
 
         for item in manifest.values():
             mt = item["media_type"]
@@ -189,7 +190,9 @@ def inspect_epub(path: Path) -> dict[str, Any]:
                 has_nav = True
                 if zpath in names:
                     nav_txt = zf.read(zpath).decode("utf-8", errors="ignore")
-                    toc_entries = max(toc_entries, len(re.findall(r"<a\b", nav_txt, re.I)))
+                    anchors = re.findall(r"<a\b[^>]*>(.*?)</a>", nav_txt, re.I | re.S)
+                    toc_entries = max(toc_entries, len(anchors))
+                    nav_nested_tags += sum(1 for inner in anchors if "<" in inner)
             if mt == "application/x-dtbncx+xml":
                 has_ncx = True
                 if zpath in names:
@@ -294,6 +297,11 @@ def inspect_epub(path: Path) -> dict[str, Any]:
                 score += 10
             else:
                 warn.append(f"Sparse TOC ({toc_entries} entries)")
+            if nav_nested_tags > 0:
+                warn.append(
+                    f"EPUB 3 <nav> has {nav_nested_tags} link(s) with nested HTML tags "
+                    "(X4 Pro stock reader truncates these; Z-Books bridge auto-cleans them on download)"
+                )
         else:
             red.append("Missing TOC (neither nav nor ncx)")
             score -= 20

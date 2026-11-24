@@ -39,7 +39,8 @@ def package() -> Path:
     icon_path = source / "assets" / f"{man['app_icon_s']}.png"
     with Image.open(icon_path) as image:
         assert image.size == (88, 88) and image.mode == "1"
-        expected_pixels = list(image.convert("L").getdata())
+        gray = image.convert("L")
+        expected_pixels = list(gray.get_flattened_data() if hasattr(gray, "get_flattened_data") else gray.getdata())
         icon = pack.build_xic_1bpp(image)
     icons = pack.build_xtab([("app_icon_s", icon)])
 

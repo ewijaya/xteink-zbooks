@@ -4,7 +4,7 @@ After=network-online.target zbooks-bridge.service
 
 [Service]
 Type=simple
-ExecStart=/home/ubuntu/.local/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8742
+ExecStart=%h/.local/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8742
 Restart=on-failure
 RestartSec=5
 

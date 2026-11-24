@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 """API 2.18 static lint and Lua 5.5 syntax/const check for Z-Books InkApp."""
+import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LUAC_CANDIDATES = [
-    ROOT / "build/toolchain/lua-5.5.0/src/luac",
-    Path("/home/ubuntu/projects/xteink-timer-deck/build/toolchain/lua-5.5.0/src/luac"),
-]
 
 
 def find_luac() -> Path | None:
-    for cand in LUAC_CANDIDATES:
-        if cand.is_file():
-            return cand
-    return None
+    env_luac = os.environ.get("LUAC")
+    if env_luac and Path(env_luac).is_file():
+        return Path(env_luac)
+    local = ROOT / "build/toolchain/lua-5.5.0/src/luac"
+    if local.is_file():
+        return local
+    found = shutil.which("luac")
+    return Path(found) if found else None
 
 
 def check_file(path: Path, source: str) -> None:

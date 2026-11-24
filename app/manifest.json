@@ -2,7 +2,7 @@
   "api": "2.18",
   "app_id": "zbooks",
   "display_name": "Z-Books",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Search Z-Library or sync your Send-to-XTEINK book queue directly into AppFiles/zbooks over Wi-Fi.",
   "entry": "index.lua",
   "requires": [
